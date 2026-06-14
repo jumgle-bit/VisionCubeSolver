@@ -36,6 +36,9 @@ class CameraService:
         capture = cv2.VideoCapture(device_id, cv2.CAP_DSHOW)
         if not capture.isOpened():
             capture.release()
+            capture = cv2.VideoCapture(device_id)
+        if not capture.isOpened():
+            capture.release()
             raise CameraError(f"Unable to open camera {device_id}")
         self._capture = capture
 
@@ -52,4 +55,3 @@ class CameraService:
         if self._capture is not None:
             self._capture.release()
             self._capture = None
-

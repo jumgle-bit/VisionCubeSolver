@@ -138,10 +138,11 @@ class MainWindow(QMainWindow):
         self.last_frame = None
         self.guide_rect = None
         self.worker: SolveWorker | None = None
+        self._auto_start_scheduled = False
         self._build_ui()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._read_camera)
-        self._refresh_devices()
+        self._load_default_device()
         self._update_state()
 
     def _build_ui(self) -> None:
@@ -250,10 +251,17 @@ class MainWindow(QMainWindow):
             self.device_combo.addItem("未发现摄像头", None)
         self._update_state()
 
+    def _load_default_device(self) -> None:
+        self.device_combo.clear()
+        self.device_combo.addItem("Integrated Camera / Camera 0", 0)
+
     def _toggle_camera(self) -> None:
         if self.camera.running:
             self._stop_camera()
             return
+        self._start_selected_camera()
+
+    def _start_selected_camera(self) -> None:
         device_id = self.device_combo.currentData()
         if device_id is None:
             QMessageBox.warning(self, "摄像头", "未发现可用摄像头")
@@ -262,6 +270,9 @@ class MainWindow(QMainWindow):
             self.camera.start(device_id)
             self.timer.start(33)
             self.camera_button.setText("停止摄像头")
+            self.status_label.setText(
+                "Integrated Camera 已启动。请将魔方面放入中央 3×3 采样框。"
+            )
         except CameraError as exc:
             QMessageBox.critical(self, "摄像头错误", str(exc))
         self._update_state()
@@ -415,6 +426,16 @@ class MainWindow(QMainWindow):
             self.worker.wait(2000)
         self.camera.stop()
         event.accept()
+
+    def showEvent(self, event: object) -> None:
+        super().showEvent(event)
+        if not self._auto_start_scheduled:
+            self._auto_start_scheduled = True
+            QTimer.singleShot(500, self._auto_start_camera)
+
+    def _auto_start_camera(self) -> None:
+        if not self.camera.running and self.device_combo.currentData() is not None:
+            self._start_selected_camera()
 
 
 def run_app() -> int:

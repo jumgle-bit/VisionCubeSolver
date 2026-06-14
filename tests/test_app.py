@@ -15,7 +15,7 @@ def test_main_window_starts_without_camera(monkeypatch) -> None:
     window = MainWindow()
 
     assert window.windowTitle().startswith("VisionCubeSolver")
-    assert window.device_combo.currentText() == "未发现摄像头"
+    assert window.device_combo.currentData() == 0
     assert not window.confirm_button.isEnabled()
     window.close()
     app.processEvents()

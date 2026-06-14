@@ -38,5 +38,13 @@ pytest
 ruff check .
 ```
 
-详细设计见 [docs/PLAN.md](docs/PLAN.md)。
+## 构建 Windows EXE
 
+```powershell
+.\build_exe.ps1
+```
+
+构建完成后双击 `dist\VisionCubeSolver.exe`。应用会自动启动电脑内置摄像头
+`Camera 0`，也可以点击“刷新摄像头”查找其他设备。
+
+详细设计见 [docs/PLAN.md](docs/PLAN.md)。

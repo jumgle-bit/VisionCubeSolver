@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import pickle
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -32,8 +33,8 @@ class PatternDatabases:
 
 
 class PatternDatabaseManager:
-    def __init__(self, cache_path: Path | str = "data/pdb/two_phase_v1.pkl") -> None:
-        self.cache_path = Path(cache_path)
+    def __init__(self, cache_path: Path | str | None = None) -> None:
+        self.cache_path = Path(cache_path) if cache_path is not None else default_cache_path()
         self._loaded: PatternDatabases | None = None
 
     def ensure_ready(self, progress_callback: ProgressCallback | None = None) -> None:
@@ -135,6 +136,13 @@ class PatternDatabaseManager:
         for table, size in expected:
             if not isinstance(table, bytearray) or len(table) != size or table[0] != 0:
                 raise ValueError("Pattern database failed validation")
+
+
+def default_cache_path() -> Path:
+    local_app_data = os.environ.get("LOCALAPPDATA")
+    if local_app_data:
+        return Path(local_app_data) / "VisionCubeSolver" / "two_phase_v1.pkl"
+    return Path.home() / ".vision_cube_solver" / "two_phase_v1.pkl"
 
 
 def _build_pruning_table(
