@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vision-cube-solver"
+version = "0.1.0"
+description = "Camera-assisted 3x3 Rubik's Cube scanner and two-phase IDA* solver"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "numpy>=1.26",
+  "opencv-python>=4.9",
+  "PySide6>=6.7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.5",
+]
+
+[project.scripts]
+vision-cube-solver = "vision_cube_solver.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vision_cube_solver"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+  "integration: requires a locally generated pattern database",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
